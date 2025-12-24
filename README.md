@@ -12,7 +12,7 @@
 ⚡🐺<br>
 
 <span style="font-size: 42px;">
-  <b>🅆🄾🄻🄵 ⓑⓞⓣ</b>
+  <b>🅇🄱🄾🅇 ⓑⓞⓣ</b>
 </span><br>
 
 <i><sub>by Silent Wolf •</sub></i>
@@ -54,17 +54,6 @@
 
 
 <a href="https://replit.com/new/nodejs" target="_blank">
-  <img src="https://img.shields.io/badge/Deploy_to_Replit-0d101e?style=for-the-badge&logo=replit&logoColor=white" alt="Deploy to Replit">
-</a>
 
-
-  <a href="https://katabump.com" target="_blank">
-    <img src="https://img.shields.io/badge/Deploy_to_Katabump-ff0055?style=for-the-badge&logo=render&logoColor=white" alt="Deploy to Katabump">
-  </a>
-
-  <a href="https://abyssnode.tech" target="_blank">
-    <img src="https://img.shields.io/badge/Deploy_to_AbyssNode-00ffcc?style=for-the-badge&logo=cloudflare&logoColor=black" alt="Deploy to AbyssNode">
-  </a>
-  </p>
   
 
