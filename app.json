@@ -164,4 +164,4 @@ function restoreIfPresent() {
   }
 }
 
-window.addEventListener('load', restoreIfPresent);0
+window.addEventListener('load', restoreIfPresent);
