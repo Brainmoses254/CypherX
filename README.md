@@ -1,52 +1,31 @@
-# Pair Code
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>virus — Pairing Code</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="card">
+    <img class="avatar" src="https://files.catbox.moe/tihrtk.jpg" alt="virus avatar" />
+    <h1 class="name">virus</h1>
+    <p class="subtitle">Get a short pairing code to share during pair programming sessions</p>
 
-A small, friendly README for a pair-programming demo.  
-Paired with: **virus**
+    <div class="controls">
+      <button id="generateBtn">Get Pairing Code</button>
+      <button id="copyBtn" disabled>Copy</button>
+      <button id="downloadBtn" disabled>Download</button>
+    </div>
 
-## Description
-This repository contains short example snippets used during pair programming sessions. The snippets are annotated to show roles (Driver / Navigator) and include a simple runnable example.
+    <div id="codeArea" class="code-area">
+      <div id="pairCode" class="pair-code">—</div>
+      <div id="expiry" class="expiry"></div>
+    </div>
 
-## How to use
-1. Pick a language from the examples below.
-2. One person acts as the Driver (typing), the other as the Navigator (reviewing / suggesting).
-3. Run the snippet locally.
+    <small class="note">Code auto-expires. Reload page to reset if needed.</small>
+  </main>
 
-## Example — Python (Driver: virus)
-```python
-# Driver: virus
-# Navigator: <your partner>
-def greet(name: str) -> str:
-    """Return a greeting for the given name."""
-    return f"Hello, {name}! 👋"
-
-if __name__ == "__main__":
-    print(greet("virus"))
-```
-
-Run:
-- python3 greet.py
-
-## Example — JavaScript (Driver: virus)
-```javascript
-// Driver: virus
-// Navigator: <your partner>
-function greet(name) {
-  return `Hello, ${name}! 👋`;
-}
-
-console.log(greet("virus"));
-```
-
-Run:
-- node greet.js
-
-## Contributing
-- Keep changes small and focused when pairing.
-- Use clear comments like `Driver: <name>` and `Navigator: <name>` to indicate roles.
-- Push a short summary of what you worked on in each commit message.
-
-## License
-MIT — feel free to reuse and adapt for your own pair sessions.
-
-## Author
-virus
+  <script src="script.js"></script>
+</body>
+</html>
