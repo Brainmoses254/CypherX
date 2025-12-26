@@ -1,60 +1,167 @@
-{
-  "name": "whatsapp-bot",
-  "description": "A WhatsApp bot (Node.js) — deployable to Heroku / Render / other PaaS.",
-  "repository": "https://github.com/yourname/your-repo",
-  "logo": "https://files.catbox.moe/tihrtk.jpg",
-  "keywords": [
-    "whatsapp",
-    "bot",
-    "nodejs"
-  ],
-  "env": {
-    "SESSION_ID": {
-      "description": "Session string/folder name used by your WhatsApp library (e.g. baileys). Leave empty to set at runtime.",
-      "value": ""
-    },
-    "BOT_NAME": {
-      "description": "Bot display name",
-      "value": "virus"
-    },
-    "OWNER_NUMBER": {
-      "description": "Owner/admin phone number in international format (e.g. +1234567890)",
-      "value": ""
-    },
-    "PREFIX": {
-      "description": "Command prefix for the bot",
-      "value": "!"
-    },
-    "MONGODB_URI": {
-      "description": "MongoDB connection string (optional, if you store data)",
-      "value": ""
-    },
-    "PORT": {
-      "description": "Port the app listens on",
-      "value": "3000"
-    },
-    "NODE_ENV": {
-      "description": "Environment",
-      "value": "production"
-    },
-    "HEROKU_API_KEY": {
-      "description": "Heroku API key (only if you use Heroku features that need the key).",
-      "value": ""
-    },
-    "HEROKU_APP_NAME": {
-      "description": "Heroku app name (optional, used with HEROKU_API_KEY).",
-      "value": ""
-    }
-  },
-  "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    }
-  ],
-  "formation": {
-    "web": {
-      "quantity": 1,
-      "size": "free"
+// app.js
+// Static client-only pairing session generator.
+// Sessions are represented by a long random token included in the URL hash.
+// No server required: URL format uses hash: #/s/<token>
+// Example shared link: https://your-site.example/#/s/Ab3x...z
+
+const avatarEl = document.getElementById('avatar');
+const titleEl = document.getElementById('title');
+const displayNameInput = document.getElementById('displayName');
+const ttlInput = document.getElementById('ttl');
+const createBtn = document.getElementById('createBtn');
+const demoBtn = document.getElementById('demoBtn');
+
+const createSection = document.getElementById('createSection');
+const sessionSection = document.getElementById('sessionSection');
+
+const shareUrlInput = document.getElementById('shareUrl');
+const copyBtn = document.getElementById('copyBtn');
+const pairCodeEl = document.getElementById('pairCode');
+const expiryEl = document.getElementById('expiry');
+const regenBtn = document.getElementById('regenBtn');
+const endBtn = document.getElementById('endBtn');
+
+let countdownTimer = null;
+let expireAt = null;
+let currentToken = null;
+
+function randomToken(length = 28) {
+  // generate length bytes and convert to base62-like string
+  const bytes = new Uint8Array(length);
+  window.crypto.getRandomValues(bytes);
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let out = '';
+  for (let i = 0; i < bytes.length; i++) {
+    out += chars[bytes[i] % chars.length];
+  }
+  return out;
+}
+
+function makePairName(name = 'user') {
+  const cleaned = String(name || 'user').trim().replace(/\s+/g, '-').slice(0, 16);
+  return cleaned.toUpperCase();
+}
+
+function buildShareUrl(token) {
+  // Use hash path so static hosting works without server routing
+  return location.origin + location.pathname + '#/s/' + token;
+}
+
+function startCountdown(msExpireAt) {
+  clearInterval(countdownTimer);
+  expireAt = msExpireAt;
+  function update() {
+    const now = Date.now();
+    const diff = Math.max(0, Math.floor((expireAt - now) / 1000));
+    const mm = String(Math.floor(diff / 60)).padStart(2,'0');
+    const ss = String(diff % 60).padStart(2,'0');
+    expiryEl.textContent = diff > 0 ? `Expires in ${mm}:${ss}` : 'Expired';
+    if (diff <= 0) {
+      clearInterval(countdownTimer);
     }
   }
+  update();
+  countdownTimer = setInterval(update, 1000);
 }
+
+function showSession(token, ttlMinutes) {
+  currentToken = token;
+  const namePart = makePairName(displayNameInput.value || 'virus');
+  const pairDisplay = `${namePart}-${token.slice(0,6)}-${token.slice(6,12)}`;
+  pairCodeEl.textContent = pairDisplay;
+  const url = buildShareUrl(token);
+  shareUrlInput.value = url;
+  createSection.classList.add('hidden');
+  sessionSection.classList.remove('hidden');
+
+  // set expiry
+  const ttlMs = Math.max(60, Math.floor(Number(ttlInput.value) || ttlMinutes || 10)) * 60 * 1000;
+  const expire = Date.now() + ttlMs;
+  startCountdown(expire);
+
+  // save to sessionStorage so reload keeps it
+  sessionStorage.setItem('pair_session', JSON.stringify({ token, expire }));
+  // update location hash
+  location.hash = '/s/' + token;
+}
+
+function endSession() {
+  clearInterval(countdownTimer);
+  currentToken = null;
+  expireAt = null;
+  sessionStorage.removeItem('pair_session');
+  // clear hash
+  history.replaceState(null, '', location.pathname + location.search);
+  sessionSection.classList.add('hidden');
+  createSection.classList.remove('hidden');
+  pairCodeEl.textContent = '—';
+  expiryEl.textContent = '—';
+  shareUrlInput.value = '';
+}
+
+function createNewSession() {
+  const token = randomToken(30); // ~30 chars
+  showSession(token, Number(ttlInput.value) || 10);
+}
+
+createBtn.addEventListener('click', createNewSession);
+
+demoBtn.addEventListener('click', () => {
+  displayNameInput.value = 'demo';
+  ttlInput.value = 2;
+  createNewSession();
+});
+
+copyBtn.addEventListener('click', async () => {
+  const text = shareUrlInput.value || pairCodeEl.textContent;
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    copyBtn.textContent = 'Copied';
+    setTimeout(()=> copyBtn.textContent = 'Copy', 1200);
+  } catch (e) {
+    alert('Copy failed — select and copy manually.');
+  }
+});
+
+regenBtn.addEventListener('click', () => {
+  // regenerate a new token for the same session (new URL)
+  createNewSession();
+});
+
+endBtn.addEventListener('click', () => {
+  if (confirm('End this session? This will remove the share link.')) {
+    endSession();
+  }
+});
+
+function restoreIfPresent() {
+  try {
+    const raw = sessionStorage.getItem('pair_session');
+    if (!raw) return;
+    const { token, expire } = JSON.parse(raw);
+    if (Date.now() < expire) {
+      // keep display name from session if present in hash
+      currentToken = token;
+      showSession(token, Math.ceil((expire - Date.now()) / 60000));
+      return;
+    } else {
+      sessionStorage.removeItem('pair_session');
+    }
+  } catch (e) {
+    console.warn(e);
+  }
+  // If arrived with a token in hash (shared link), show it (read-only)
+  const h = location.hash || '';
+  const m = h.match(/^#\/s\/([A-Za-z0-9\-_.]{8,})/);
+  if (m) {
+    const token = m[1];
+    // show view-only: populate pair code but keep create UI hidden
+    displayNameInput.value = displayNameInput.value || 'visitor';
+    showSession(token, 10);
+    // but mark this as not "owned" by this client (sessionStorage not set)
+    sessionStorage.removeItem('pair_session');
+  }
+}
+
+window.addEventListener('load', restoreIfPresent);
