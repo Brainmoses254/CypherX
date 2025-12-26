@@ -1,7 +1,14 @@
 build:
   docker:
-    web:
-      dockerfile: Dockerfile
-
+    web: Dockerfile
+  config:
+    NODE_ENV: production
 run:
-  web: npm start
+  web: node index.js
+formation:
+  web:
+    quantity: 1
+    size: standard-1x
+addons:
+  - plan: heroku-postgresql:hobby-dev
+  - plan: heroku-redis:hobby-dev
