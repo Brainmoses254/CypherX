@@ -1,37 +1,60 @@
 {
-  "name": "CypherX",
-  "description": "CypherX, your friendly assistant!",
-  "logo": "https://files.catbox.moe/4wej2d.jpg",
-  "keywords": [],
-  "repository": "https://github.com/Dark-Xploit/CypherX",
-  "stack": "container",
-  "addons": [
-    {
-      "plan": "heroku-postgresql"
-    }
+  "name": "whatsapp-bot",
+  "description": "A WhatsApp bot (Node.js) — deployable to Heroku / Render / other PaaS.",
+  "repository": "https://github.com/yourname/your-repo",
+  "logo": "https://files.catbox.moe/tihrtk.jpg",
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "nodejs"
   ],
-  "scripts": {
-    "start": "node index.js"
+  "env": {
+    "SESSION_ID": {
+      "description": "Session string/folder name used by your WhatsApp library (e.g. baileys). Leave empty to set at runtime.",
+      "value": ""
+    },
+    "BOT_NAME": {
+      "description": "Bot display name",
+      "value": "virus"
+    },
+    "OWNER_NUMBER": {
+      "description": "Owner/admin phone number in international format (e.g. +1234567890)",
+      "value": ""
+    },
+    "PREFIX": {
+      "description": "Command prefix for the bot",
+      "value": "!"
+    },
+    "MONGODB_URI": {
+      "description": "MongoDB connection string (optional, if you store data)",
+      "value": ""
+    },
+    "PORT": {
+      "description": "Port the app listens on",
+      "value": "3000"
+    },
+    "NODE_ENV": {
+      "description": "Environment",
+      "value": "production"
+    },
+    "HEROKU_API_KEY": {
+      "description": "Heroku API key (only if you use Heroku features that need the key).",
+      "value": ""
+    },
+    "HEROKU_APP_NAME": {
+      "description": "Heroku app name (optional, used with HEROKU_API_KEY).",
+      "value": ""
+    }
   },
-"env": {
-  "SESSION_ID": {
-    "description": "Must begin with 'XPLOADER-BOT:~' or 'CYPHER-X:~'.",
-    "value": "",
-    "required": false
-  }
-},
   "buildpacks": [
     {
       "url": "heroku/nodejs"
-    },
-    {
-      "url": "https://github.com/DuckyTeam/heroku-buildpack-imagemagick.git"
-    },
-    {
-      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
-    },
-    {
-      "url": "https://github.com/clhuang/heroku-buildpack-webp-binaries.git"
     }
-  ]
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  }
 }
