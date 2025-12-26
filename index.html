@@ -3,29 +3,58 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>virus — Pairing Code</title>
+  <title>virus — Unique Pairing Session</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="card">
-    <img class="avatar" src="https://files.catbox.moe/tihrtk.jpg" alt="virus avatar" />
-    <h1 class="name">virus</h1>
-    <p class="subtitle">Get a short pairing code to share during pair programming sessions</p>
+    <img class="avatar" id="avatar" src="https://files.catbox.moe/tihrtk.jpg" alt="avatar" />
+    <h1 id="title">virus — Pairing</h1>
 
-    <div class="controls">
-      <button id="generateBtn">Get Pairing Code</button>
-      <button id="copyBtn" disabled>Copy</button>
-      <button id="downloadBtn" disabled>Download</button>
-    </div>
+    <section id="createSection" class="panel">
+      <label class="row">
+        <span>Your name</span>
+        <input id="displayName" type="text" value="virus" />
+      </label>
 
-    <div id="codeArea" class="code-area">
-      <div id="pairCode" class="pair-code">—</div>
-      <div id="expiry" class="expiry"></div>
-    </div>
+      <label class="row">
+        <span>Code TTL (minutes)</span>
+        <input id="ttl" type="number" min="1" max="60" value="10" />
+      </label>
 
-    <small class="note">Code auto-expires. Reload page to reset if needed.</small>
+      <div class="actions">
+        <button id="createBtn">Create unique pairing session</button>
+        <button id="demoBtn" title="Generate a demo code quickly">Demo</button>
+      </div>
+
+      <p class="muted">Each session gets a cryptographically-random token. The generated share URL contains the token and is effectively unique.</p>
+    </section>
+
+    <section id="sessionSection" class="panel hidden">
+      <h2>Share this link</h2>
+      <div class="linkBox">
+        <input id="shareUrl" readonly />
+        <button id="copyBtn">Copy</button>
+      </div>
+
+      <div class="codeArea">
+        <div class="pairCode" id="pairCode">—</div>
+        <div class="expiry muted" id="expiry">—</div>
+      </div>
+
+      <div class="sessionActions">
+        <button id="regenBtn">Regenerate (new token)</button>
+        <button id="endBtn">End session</button>
+      </div>
+
+      <p class="muted">To join, open the link. The token is contained in the URL hash so no server required.</p>
+    </section>
+
+    <footer class="footer">
+      <small>Built for pair-programming. Image: provided by user.</small>
+    </footer>
   </main>
 
-  <script src="script.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
