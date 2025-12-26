@@ -1,0 +1,98 @@
+// script.js
+// Generates a short pairing code, shows expiry, supports copy and download.
+
+const NAME = 'virus';
+const CODE_TTL_SECONDS = 5 * 60; // 5 minutes
+
+const generateBtn = document.getElementById('generateBtn');
+const copyBtn = document.getElementById('copyBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const pairCodeEl = document.getElementById('pairCode');
+const expiryEl = document.getElementById('expiry');
+
+let countdownTimer = null;
+
+function randomCode(length = 8) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // avoid ambiguous 0/O, 1/I
+  let out = '';
+  for (let i = 0; i < length; i++) {
+    out += chars[Math.floor(Math.random() * chars.length)];
+    if ((i+1) % 4 === 0 && i !== length-1) out += '-';
+  }
+  return out;
+}
+
+function startCountdown(expireAt) {
+  clearInterval(countdownTimer);
+  function update() {
+    const now = Date.now();
+    const diff = Math.max(0, Math.floor((expireAt - now) / 1000));
+    const mm = String(Math.floor(diff / 60)).padStart(2,'0');
+    const ss = String(diff % 60).padStart(2,'0');
+    expiryEl.textContent = diff > 0 ? `Expires in ${mm}:${ss}` : 'Expired';
+    if (diff <= 0) {
+      clearInterval(countdownTimer);
+      copyBtn.disabled = true;
+      downloadBtn.disabled = true;
+    }
+  }
+  update();
+  countdownTimer = setInterval(update, 1000);
+}
+
+function setCode(code, ttlSeconds = CODE_TTL_SECONDS) {
+  pairCodeEl.textContent = code;
+  copyBtn.disabled = false;
+  downloadBtn.disabled = false;
+  const expireAt = Date.now() + ttlSeconds * 1000;
+  localStorage.setItem('pair_code', JSON.stringify({ code, expireAt }));
+  startCountdown(expireAt);
+}
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem('pair_code');
+    if (!raw) return;
+    const { code, expireAt } = JSON.parse(raw);
+    if (Date.now() < expireAt) {
+      setCode(code, Math.max(0, Math.floor((expireAt - Date.now())/1000)));
+    } else {
+      localStorage.removeItem('pair_code');
+    }
+  } catch(e) {
+    console.warn('Could not load saved code', e);
+  }
+}
+
+generateBtn.addEventListener('click', () => {
+  const code = `${NAME.toUpperCase().slice(0,6)}-${randomCode(8)}`; // e.g. VIRUS-ABCD-EFGH
+  setCode(code, CODE_TTL_SECONDS);
+});
+
+copyBtn.addEventListener('click', async () => {
+  const code = pairCodeEl.textContent;
+  if (!code || code === '—') return;
+  try {
+    await navigator.clipboard.writeText(code);
+    copyBtn.textContent = 'Copied';
+    setTimeout(()=> copyBtn.textContent = 'Copy', 1400);
+  } catch (e) {
+    alert('Copy failed — select the code and copy manually.');
+  }
+});
+
+downloadBtn.addEventListener('click', () => {
+  const code = pairCodeEl.textContent;
+  if (!code || code === '—') return;
+  const blob = new Blob([code + '\n'], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${NAME}-pairing-code.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+
+window.addEventListener('load', loadSaved);
